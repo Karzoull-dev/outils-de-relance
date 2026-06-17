@@ -1,0 +1,383 @@
+import { notFound, redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { formatCurrency } from "@/lib/invoices";
+import { getPaymentMethods, type PaymentMethod } from "@/lib/payment-methods";
+import { getLocale } from "@/lib/i18n/getLocale";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getUserProfile } from "@/app/dashboard/settings/profileActions";
+import { PrintTrigger } from "./PrintTrigger";
+
+function invoiceNumber(id: string, createdAt: string): string {
+  const d = new Date(createdAt);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  return `FA-${year}${month}-${id.slice(0, 4).toUpperCase()}`;
+}
+
+/* Script synchrone injecté avant tout rendu pour lire localStorage et
+   appliquer le thème sombre dès le parsing HTML — zéro flash. */
+const themeScript = `(function(){try{if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`;
+
+export default async function PrintPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) redirect("/login");
+
+  const { data: invoice } = await supabase
+    .from("invoices")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!invoice) notFound();
+
+  const [locale, profile] = await Promise.all([getLocale(), getUserProfile()]);
+  const t = getDictionary(locale);
+  const paymentMethods = getPaymentMethods(locale);
+  const hasProfile = !!(profile?.display_name || profile?.email);
+
+  const number = invoiceNumber(invoice.id, invoice.created_at);
+  const isPaid = !!invoice.paid_at;
+  const paymentLabel = invoice.payment_method
+    ? paymentMethods[invoice.payment_method as PaymentMethod]?.label
+    : null;
+
+  const issueDate = new Date(invoice.created_at).toLocaleDateString(
+    locale === "fr" ? "fr-FR" : "en-GB",
+    { day: "2-digit", month: "2-digit", year: "numeric" },
+  );
+
+  return (
+    <>
+      {/* Lecture du thème avant toute peinture */}
+      {/* eslint-disable-next-line react/no-unknown-property */}
+      <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+
+      <PrintTrigger invoiceNumber={number} />
+
+      {/* eslint-disable-next-line react/no-unknown-property */}
+      <style>{`
+        /* ── Reset ── */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        /* ── Light theme ── */
+        body { font-family: Arial, Helvetica, sans-serif; background: #f3f4f6; color: #111827; }
+
+        /* Action bar */
+        .action-bar {
+          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 0.75rem 1.5rem;
+          background: #fff; border-bottom: 1px solid #e5e7eb;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .action-bar-right { display: flex; gap: 0.5rem; }
+        .btn-ghost {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+          color: #6b7280; background: transparent; border: none; cursor: pointer;
+          transition: background 0.15s;
+        }
+        .btn-ghost:hover { background: #f3f4f6; color: #111827; }
+        .btn-secondary {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+          color: #374151; background: #f9fafb; border: 1px solid #e5e7eb; cursor: pointer;
+          transition: background 0.15s;
+        }
+        .btn-secondary:hover { background: #f3f4f6; }
+        .btn-primary {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+          color: #fff; background: #4f46e5; border: none; cursor: pointer;
+          transition: opacity 0.15s;
+        }
+        .btn-primary:hover { opacity: 0.88; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin 0.8s linear infinite; }
+
+        /* Wrapper — aligne en haut, pas de centrage vertical */
+        .outer {
+          padding: 80px 20px 40px;
+          display: flex; flex-direction: column; align-items: center;
+        }
+
+        .page { width: 100%; max-width: 680px; }
+        .doc  { border: 0.5px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; }
+
+        /* Banner */
+        .banner     { background: #4f46e5; padding: 1.25rem 1.75rem; }
+        .banner-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .inv-label  { font-size: 11px; color: rgba(255,255,255,0.65); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+        .inv-num    { font-size: 20px; font-weight: 500; color: #fff; }
+        .badge-paid { background: rgba(255,255,255,0.18); color: #fff; font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); }
+        .dates      { display: flex; gap: 2rem; margin-top: 1rem; }
+        .date-lbl   { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .date-val   { font-size: 13px; color: #fff; }
+
+        /* Parties */
+        .parties    { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 0.5px solid #e5e7eb; }
+        .party      { padding: 1.25rem 1.75rem; }
+        .party-l    { border-right: 0.5px solid #e5e7eb; }
+        .sec-lbl    { font-size: 11px; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+        .party-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: #111827; }
+        .party-row  { font-size: 13px; color: #6b7280; margin-bottom: 2px; }
+        .party-meta { font-size: 12px; color: #9ca3af; margin-bottom: 2px; }
+        .party-contact { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+        .placeholder { font-size: 13px; color: #9ca3af; font-style: italic; }
+
+        /* Line items */
+        .items      { padding: 1.25rem 1.75rem; border-bottom: 0.5px solid #e5e7eb; }
+        .items table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+        .th         { padding-bottom: 8px; color: #6b7280; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 0.5px solid #e5e7eb; }
+        .th-l       { text-align: left; width: 45%; }
+        .th-c       { text-align: center; width: 15%; }
+        .th-r       { text-align: right; width: 20%; }
+        .td-l       { padding: 10px 0; color: #111827; }
+        .td-c       { padding: 10px 0; text-align: center; color: #6b7280; }
+        .td-r       { padding: 10px 0; text-align: right; color: #6b7280; }
+        .td-total   { padding: 10px 0; text-align: right; font-weight: 500; color: #111827; }
+
+        /* Bottom */
+        .bottom     { display: grid; grid-template-columns: 1fr 1fr; }
+        .pay        { padding: 1.25rem 1.75rem; border-right: 0.5px solid #e5e7eb; }
+        .pay-name   { font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #111827; }
+        .pay-val    { font-size: 12px; color: #6b7280; word-break: break-all; font-family: monospace; }
+        .totals     { padding: 1.25rem 1.75rem; }
+        .total-row  { display: flex; justify-content: space-between; align-items: baseline; border-top: 0.5px solid #e5e7eb; padding-top: 8px; margin-top: 8px; }
+        .total-lbl  { font-size: 13px; font-weight: 500; color: #111827; }
+        .total-amt  { font-size: 20px; font-weight: 500; color: #4f46e5; }
+
+        /* Footer */
+        .footer     { padding: 0.875rem 1.75rem; background: #f9fafb; border-top: 0.5px solid #e5e7eb; text-align: center; }
+        .footer p   { font-size: 11px; color: #9ca3af; }
+
+        /* ── Dark theme — action bar ── */
+        .dark .action-bar   { background: #1e1e1e; border-color: #2e2e2e; }
+        .dark .btn-ghost    { color: #a3a3a3; }
+        .dark .btn-ghost:hover { background: #2a2a2a; color: #f5f5f5; }
+        .dark .btn-secondary { color: #d1d5db; background: #2a2a2a; border-color: #2e2e2e; }
+        .dark .btn-secondary:hover { background: #333; }
+        .dark .btn-primary  { background: #3b82f6; }
+
+        /* ── Dark theme ── */
+        .dark body { background: #0f0f0f; color: #f5f5f5; }
+        .dark .outer { background: #0f0f0f; }
+
+        .dark .doc        { background: #1e1e1e; border-color: transparent; }
+        .dark .parties    { border-color: #2e2e2e; }
+        .dark .party-l    { border-color: #2e2e2e; }
+        .dark .items      { border-color: #2e2e2e; }
+        .dark .pay        { border-color: #2e2e2e; }
+        .dark .total-row  { border-color: #2e2e2e; }
+        .dark .footer     { background: #171717; border-color: #2e2e2e; }
+
+        .dark .sec-lbl      { color: #a3a3a3; }
+        .dark .party-name   { color: #f5f5f5; }
+        .dark .party-row    { color: #a3a3a3; }
+        .dark .party-meta   { color: #737373; }
+        .dark .party-contact { color: #737373; }
+        .dark .placeholder  { color: #737373; }
+        .dark .th           { color: #a3a3a3; border-color: #2e2e2e; }
+        .dark .td-l         { color: #f5f5f5; }
+        .dark .td-c         { color: #a3a3a3; }
+        .dark .td-r         { color: #a3a3a3; }
+        .dark .td-total     { color: #f5f5f5; }
+        .dark .pay-name     { color: #f5f5f5; }
+        .dark .pay-val      { color: #a3a3a3; }
+        .dark .total-lbl    { color: #f5f5f5; }
+        .dark .total-amt    { color: #3b82f6; }
+        .dark .footer p     { color: #737373; }
+
+        /* ── Mobile ── */
+        @media screen and (max-width: 600px) {
+          .outer { padding: 130px 12px 32px; }
+          .action-bar { flex-wrap: wrap; row-gap: 8px; padding: 0.6rem 1rem; }
+          .action-bar-right { width: 100%; justify-content: flex-end; }
+          .banner, .party, .items, .pay, .totals, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+          .dates { flex-wrap: wrap; gap: 1.25rem; }
+          .parties { grid-template-columns: 1fr; }
+          .party-l { border-right: none; border-bottom: 0.5px solid #e5e7eb; }
+          .dark .party-l { border-color: #2e2e2e; }
+          .bottom { grid-template-columns: 1fr; }
+          .pay { border-right: none; border-bottom: 0.5px solid #e5e7eb; }
+          .dark .pay { border-color: #2e2e2e; }
+        }
+
+        @page { size: A4; margin: 0; }
+        @media print {
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+          /* Masquer la barre d'action */
+          .action-bar { display: none !important; visibility: hidden !important; }
+
+          /* Mise en page impression */
+          .outer { display: block !important; padding: 0 !important; }
+          .page  { max-width: 100% !important; width: 100% !important; margin: 0 !important; }
+          .doc   { border-radius: 0 !important; }
+
+          /* ── Forcer le thème clair à l'impression (même en dark mode) ── */
+          html, html.dark               { background: #fff !important; }
+          body, .dark body              { background: #fff !important; color: #111827 !important; }
+          .outer, .dark .outer          { background: #fff !important; }
+          .doc, .dark .doc              { background: #fff !important; border-color: #e5e7eb !important; }
+          .parties, .dark .parties      { border-color: #e5e7eb !important; }
+          .party-l, .dark .party-l      { border-color: #e5e7eb !important; }
+          .items, .dark .items          { border-color: #e5e7eb !important; }
+          .pay, .dark .pay              { border-color: #e5e7eb !important; }
+          .total-row, .dark .total-row  { border-color: #e5e7eb !important; }
+          .footer, .dark .footer        { background: #f9fafb !important; border-color: #e5e7eb !important; }
+
+          .sec-lbl, .dark .sec-lbl          { color: #6b7280 !important; }
+          .party-name, .dark .party-name    { color: #111827 !important; }
+          .party-row, .dark .party-row      { color: #6b7280 !important; }
+          .party-meta, .dark .party-meta    { color: #9ca3af !important; }
+          .party-contact, .dark .party-contact { color: #9ca3af !important; }
+          .placeholder, .dark .placeholder  { color: #9ca3af !important; }
+          .th, .dark .th                    { color: #6b7280 !important; border-color: #e5e7eb !important; }
+          .td-l, .dark .td-l               { color: #111827 !important; }
+          .td-c, .dark .td-c               { color: #6b7280 !important; }
+          .td-r, .dark .td-r               { color: #6b7280 !important; }
+          .td-total, .dark .td-total        { color: #111827 !important; }
+          .pay-name, .dark .pay-name        { color: #111827 !important; }
+          .pay-val, .dark .pay-val          { color: #6b7280 !important; }
+          .total-lbl, .dark .total-lbl      { color: #111827 !important; }
+          .total-amt, .dark .total-amt      { color: #4f46e5 !important; }
+          .footer p, .dark .footer p        { color: #9ca3af !important; }
+        }
+      `}</style>
+
+      <div className="outer">
+      <div className="page">
+        <div className="doc">
+
+          {/* ── Banner ── */}
+          <div className="banner">
+            <div className="banner-top">
+              <div>
+                <p className="inv-label">Facture</p>
+                <p className="inv-num">{number}</p>
+              </div>
+              {isPaid && (
+                <span className="badge-paid">{t.invoiceStatus.paid} ✓</span>
+              )}
+            </div>
+            <div className="dates">
+              <div>
+                <p className="date-lbl">{t.invoiceDetail.templateDate.replace(" :", "")}</p>
+                <p className="date-val">{issueDate}</p>
+              </div>
+              <div>
+                <p className="date-lbl">{t.invoiceDetail.due.replace(" :", "")}</p>
+                <p className="date-val">{invoice.due_date}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Émetteur / Client ── */}
+          <div className="parties">
+            <div className="party party-l">
+              <p className="sec-lbl">{t.invoiceDetail.templateFrom}</p>
+              {hasProfile ? (
+                <>
+                  {profile!.display_name && <p className="party-name">{profile!.display_name}</p>}
+                  {profile!.email && <p className="party-row">{profile!.email}</p>}
+                  {profile!.address && <p className="party-row">{profile!.address}</p>}
+                  {profile!.siret && <p className="party-meta">SIRET : {profile!.siret}</p>}
+                  {profile!.tva && <p className="party-meta">TVA : {profile!.tva}</p>}
+                </>
+              ) : (
+                <p className="placeholder">{t.invoiceDetail.templateFromPlaceholder}</p>
+              )}
+            </div>
+            <div className="party">
+              <p className="sec-lbl">Client</p>
+              <p className="party-name">{invoice.client_name}</p>
+              <p className="party-row">{invoice.client_email}</p>
+              {invoice.client_address && (
+                <p className="party-row">{invoice.client_address}</p>
+              )}
+              {invoice.client_siret && (
+                <p className="party-meta">SIRET : {invoice.client_siret}</p>
+              )}
+              {invoice.client_tva && (
+                <p className="party-meta">TVA : {invoice.client_tva}</p>
+              )}
+              {(invoice.client_contact_name || invoice.client_contact_role) && (
+                <p className="party-contact">
+                  {[invoice.client_contact_name, invoice.client_contact_role]
+                    .filter(Boolean)
+                    .join(" — ")}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* ── Line items ── */}
+          <div className="items">
+            <table>
+              <thead>
+                <tr>
+                  <th className="th th-l">{t.invoiceDetail.templateDescription}</th>
+                  <th className="th th-c">{t.invoiceDetail.templateQty}</th>
+                  <th className="th th-r">{t.invoiceDetail.templateUnit}</th>
+                  <th className="th th-r">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="td-l">{t.invoiceDetail.templateService}</td>
+                  <td className="td-c">1</td>
+                  <td className="td-r">{formatCurrency(invoice.amount, invoice.currency, locale)}</td>
+                  <td className="td-total">{formatCurrency(invoice.amount, invoice.currency, locale)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── Payment / Total ── */}
+          <div className="bottom">
+            <div className="pay">
+              {paymentLabel ? (
+                <>
+                  <p className="sec-lbl">{t.invoiceDetail.paymentMethod.replace(" :", "")}</p>
+                  <p className="pay-name">{paymentLabel}</p>
+                  {invoice.payment_value && (
+                    <p className="pay-val">{invoice.payment_value}</p>
+                  )}
+                </>
+              ) : (
+                <p className="placeholder">—</p>
+              )}
+            </div>
+            <div className="totals">
+              <div className="total-row">
+                <span className="total-lbl">Total</span>
+                <span className="total-amt">
+                  {formatCurrency(invoice.amount, invoice.currency, locale)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Legal footer ── */}
+          <div className="footer">
+            <p>
+              En cas de retard de paiement, des pénalités de 3× le taux légal seront appliquées,
+              ainsi qu&apos;une indemnité forfaitaire de 40 € (art. L441-10 C. com.)
+            </p>
+          </div>
+
+        </div>
+      </div>
+      </div>
+    </>
+  );
+}

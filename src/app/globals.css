@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --canvas: #f9fafb;
+  --sidebar: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #f3f4f6;
+  --border: #e5e7eb;
+  --ink: #111827;
+  --muted: #6b7280;
+  --faint: #9ca3af;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-foreground: #ffffff;
+  --success: #10b981;
+  --success-surface: rgba(16, 185, 129, 0.12);
+  --warning: #f59e0b;
+  --warning-surface: rgba(245, 158, 11, 0.12);
+  --danger: #ef4444;
+  --danger-surface: rgba(239, 68, 68, 0.12);
+  --info: #4f46e5;
+  --info-surface: rgba(79, 70, 229, 0.1);
+}
+
+.dark {
+  --canvas: #121212;
+  --sidebar: #171717;
+  --surface: #1e1e1e;
+  --surface-hover: #2a2a2a;
+  --border: #2e2e2e;
+  --ink: #f5f5f5;
+  --muted: #a3a3a3;
+  --faint: #737373;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-foreground: #ffffff;
+  --success: #10b981;
+  --success-surface: rgba(16, 185, 129, 0.15);
+  --warning: #f59e0b;
+  --warning-surface: rgba(245, 158, 11, 0.15);
+  --danger: #ef4444;
+  --danger-surface: rgba(239, 68, 68, 0.15);
+  --info: #3b82f6;
+  --info-surface: rgba(59, 130, 246, 0.15);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-info: var(--info);
+  --color-info-surface: var(--info-surface);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --animate-fade-in: fade-in 0.15s ease-out;
+  --animate-modal-in: modal-in 0.2s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: scaleY(0.85) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.diagonal-strike::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    var(--border) calc(50% - 1px),
+    var(--border) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+button,
+[role="button"],
+a {
+  cursor: pointer;
+}
