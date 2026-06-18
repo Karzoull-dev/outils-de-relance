@@ -36,13 +36,7 @@ export function Faq() {
 
   return (
     <section id="faq" className="scroll-mt-20 bg-white px-5 py-20 sm:px-8 sm:py-28">
-      <motion.div
-        className="mx-auto max-w-2xl text-center"
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.3 }}
-        transition={{ duration: 0.6 }}
-      >
+      <div className="mx-auto max-w-2xl text-center">
         <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">FAQ</p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
           Questions fréquentes
@@ -50,15 +44,9 @@ export function Faq() {
         <p className="mt-4 text-base text-gray-500">
           Tout ce que vous devez savoir avant de commencer.
         </p>
-      </motion.div>
+      </div>
 
-      <motion.div
-        className="mx-auto mt-12 max-w-2xl divide-y divide-gray-200 border-y border-gray-200"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.3 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
+      <div className="mx-auto mt-12 max-w-2xl divide-y divide-gray-200 border-y border-gray-200">
         {QUESTIONS.map(({ q, a }, i) => {
           const isOpen = openIndex === i;
           return (
@@ -88,7 +76,7 @@ export function Faq() {
             </div>
           );
         })}
-      </motion.div>
+      </div>
     </section>
   );
 }

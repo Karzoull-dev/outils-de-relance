@@ -22,20 +22,14 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section className="bg-gray-50 px-5 py-20 sm:px-8 sm:py-28">
-      <motion.div
-        className="mx-auto max-w-2xl text-center"
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.3 }}
-        transition={{ duration: 0.6 }}
-      >
+      <div className="mx-auto max-w-2xl text-center">
         <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">
           Comment ça marche
         </p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
           En 3 étapes, c&apos;est réglé
         </h2>
-      </motion.div>
+      </div>
 
       <div className="mx-auto mt-14 grid max-w-4xl gap-10 sm:grid-cols-3">
         {STEPS.map(({ title, description, done }, i) => (

@@ -48,26 +48,10 @@ const FEATURES = [
   },
 ];
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
-};
-
-const card = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
 export function Features() {
   return (
     <section id="features" className="scroll-mt-20 bg-white px-5 py-20 sm:px-8 sm:py-28">
-      <motion.div
-        className="mx-auto max-w-2xl text-center"
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.3 }}
-        transition={{ duration: 0.6 }}
-      >
+      <div className="mx-auto max-w-2xl text-center">
         <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">
           Fonctionnalités
         </p>
@@ -78,19 +62,12 @@ export function Features() {
           Pensé pour les freelances et indépendants qui veulent être payés, pas gérer un
           logiciel.
         </p>
-      </motion.div>
+      </div>
 
-      <motion.div
-        className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3"
-        variants={container}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: false, amount: 0.3 }}
-      >
+      <div className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map(({ icon: Icon, iconBg, iconColor, title, description }) => (
           <motion.div
             key={title}
-            variants={card}
             whileHover={{ y: -4 }}
             transition={{ duration: 0.2 }}
             className="rounded-2xl border border-gray-200 bg-white p-6 transition-colors hover:border-indigo-300"
@@ -102,7 +79,7 @@ export function Features() {
             <p className="mt-1.5 text-sm text-gray-500">{description}</p>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }
