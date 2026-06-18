@@ -97,7 +97,10 @@ export function HowItWorks() {
 
         <div className="relative flex flex-col gap-14">
           {STEPS.map(({ title, description, done }, i) => (
-            <div key={title} className="relative z-10 flex flex-col items-center text-center">
+            <div
+              key={title}
+              className="relative z-10 flex flex-col items-center bg-gray-50 text-center"
+            >
               <span
                 ref={(el) => {
                   circleRefs.current[i] = el;
