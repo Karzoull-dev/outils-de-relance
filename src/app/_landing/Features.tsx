@@ -1,7 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Bell, MessageCircle, FileText, CreditCard, BarChart3, Lock } from "lucide-react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const FEATURES = [
   {
@@ -49,6 +53,49 @@ const FEATURES = [
 ];
 
 export function Features() {
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const cards = gridRef.current?.querySelectorAll<HTMLElement>("[data-feature-card]");
+    if (!cards || cards.length === 0) return;
+
+    const isMobile = window.innerWidth < 768;
+
+    const tween = gsap.fromTo(
+      cards,
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: isMobile ? 0.3 : 0.5,
+        stagger: isMobile ? 0.03 : 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: gridRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      },
+    );
+
+    const hoverHandlers = Array.from(cards).map((card) => {
+      const onEnter = () => gsap.to(card, { y: -4, duration: 0.2, ease: "power2.out" });
+      const onLeave = () => gsap.to(card, { y: 0, duration: 0.2, ease: "power2.out" });
+      card.addEventListener("mouseenter", onEnter);
+      card.addEventListener("mouseleave", onLeave);
+      return { card, onEnter, onLeave };
+    });
+
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+      hoverHandlers.forEach(({ card, onEnter, onLeave }) => {
+        card.removeEventListener("mouseenter", onEnter);
+        card.removeEventListener("mouseleave", onLeave);
+      });
+    };
+  }, []);
+
   return (
     <section id="features" className="scroll-mt-20 bg-white px-5 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto max-w-2xl text-center">
@@ -64,12 +111,14 @@ export function Features() {
         </p>
       </div>
 
-      <div className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        ref={gridRef}
+        className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {FEATURES.map(({ icon: Icon, iconBg, iconColor, title, description }) => (
-          <motion.div
+          <div
             key={title}
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
+            data-feature-card
             className="rounded-2xl border border-gray-200 bg-white p-6 transition-colors hover:border-indigo-300"
           >
             <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
@@ -77,7 +126,7 @@ export function Features() {
             </span>
             <h3 className="mt-4 text-base font-semibold text-gray-900">{title}</h3>
             <p className="mt-1.5 text-sm text-gray-500">{description}</p>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>

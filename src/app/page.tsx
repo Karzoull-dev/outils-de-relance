@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SmoothScroll } from "./_landing/SmoothScroll";
 import { Navbar } from "./_landing/Navbar";
 import { Hero } from "./_landing/Hero";
 import { TrustBar } from "./_landing/TrustBar";
@@ -16,17 +17,19 @@ export default async function Home() {
   if (data.user) redirect("/dashboard");
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <Navbar />
-      <main>
-        <Hero />
-        <TrustBar />
-        <Features />
-        <HowItWorks />
-        <Faq />
-        <CtaSection />
-      </main>
-      <Footer />
-    </div>
+    <SmoothScroll>
+      <div className="flex min-h-screen flex-col bg-white">
+        <Navbar />
+        <main>
+          <Hero />
+          <TrustBar />
+          <Features />
+          <HowItWorks />
+          <Faq />
+          <CtaSection />
+        </main>
+        <Footer />
+      </div>
+    </SmoothScroll>
   );
 }

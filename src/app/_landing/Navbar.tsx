@@ -9,7 +9,7 @@ export function Navbar() {
 
   useEffect(() => {
     function onScroll() {
-      setScrolled(window.scrollY > 8);
+      setScrolled(window.scrollY > 50);
     }
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -18,8 +18,8 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 border-b bg-white/95 backdrop-blur-sm transition-shadow ${
-        scrolled ? "border-gray-200 shadow-sm" : "border-transparent"
+      className={`sticky top-0 z-50 border-b backdrop-blur-sm transition-all ${
+        scrolled ? "border-gray-200 bg-white/95 shadow-sm" : "border-transparent bg-white/70"
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">

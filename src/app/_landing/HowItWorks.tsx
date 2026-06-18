@@ -1,7 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Check } from "lucide-react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const STEPS = [
   {
@@ -20,6 +24,70 @@ const STEPS = [
 ];
 
 export function HowItWorks() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const circleRefs = useRef<(HTMLSpanElement | null)[]>([]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const first = circleRefs.current[0];
+    const last = circleRefs.current[circleRefs.current.length - 1];
+    if (!container || !first || !last) return;
+
+    function positionLine() {
+      const containerRect = container!.getBoundingClientRect();
+      const firstRect = first!.getBoundingClientRect();
+      const lastRect = last!.getBoundingClientRect();
+      const top = firstRect.top - containerRect.top + firstRect.height / 2;
+      const bottom = lastRect.top - containerRect.top + lastRect.height / 2;
+      const height = bottom - top;
+      [trackRef.current, lineRef.current].forEach((el) => {
+        if (el) {
+          el.style.top = `${top}px`;
+          el.style.height = `${height}px`;
+        }
+      });
+    }
+
+    positionLine();
+    window.addEventListener("resize", positionLine);
+
+    const isMobile = window.innerWidth < 768;
+
+    const tween = gsap.fromTo(
+      lineRef.current,
+      { scaleY: 0 },
+      isMobile
+        ? {
+            scaleY: 1,
+            duration: 0.6,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: container,
+              start: "top 70%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        : {
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: container,
+              start: "top 70%",
+              end: "bottom 70%",
+              scrub: true,
+            },
+          },
+    );
+
+    return () => {
+      window.removeEventListener("resize", positionLine);
+      tween.scrollTrigger?.kill();
+      tween.kill();
+    };
+  }, []);
+
   return (
     <section className="bg-gray-50 px-5 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto max-w-2xl text-center">
@@ -31,28 +99,31 @@ export function HowItWorks() {
         </h2>
       </div>
 
-      <div className="mx-auto mt-14 grid max-w-4xl gap-10 sm:grid-cols-3">
-        {STEPS.map(({ title, description, done }, i) => (
-          <motion.div
-            key={title}
-            className="flex flex-col items-center text-center"
-            initial="rest"
-            whileHover="hover"
-            animate="rest"
-          >
-            <motion.span
-              variants={{ rest: { scale: 1 }, hover: { scale: 1.15 } }}
-              transition={{ duration: 0.2 }}
-              className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold text-white ${
-                done ? "bg-emerald-500" : "bg-indigo-600"
-              }`}
-            >
-              {done ? <Check className="h-5 w-5" /> : i + 1}
-            </motion.span>
-            <h3 className="mt-5 text-base font-semibold text-gray-900">{title}</h3>
-            <p className="mt-1.5 text-sm text-gray-500">{description}</p>
-          </motion.div>
-        ))}
+      <div ref={containerRef} className="relative mx-auto mt-16 max-w-xs">
+        <div ref={trackRef} className="absolute left-1/2 w-0.5 -translate-x-1/2 bg-gray-200" />
+        <div
+          ref={lineRef}
+          className="absolute left-1/2 w-0.5 origin-top -translate-x-1/2 scale-y-0 bg-indigo-600"
+        />
+
+        <div className="relative flex flex-col gap-14">
+          {STEPS.map(({ title, description, done }, i) => (
+            <div key={title} className="relative z-10 flex flex-col items-center text-center">
+              <span
+                ref={(el) => {
+                  circleRefs.current[i] = el;
+                }}
+                className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold text-white ring-8 ring-gray-50 ${
+                  done ? "bg-emerald-500" : "bg-indigo-600"
+                }`}
+              >
+                {done ? <Check className="h-5 w-5" /> : i + 1}
+              </span>
+              <h3 className="mt-5 text-base font-semibold text-gray-900">{title}</h3>
+              <p className="mt-1.5 text-sm text-gray-500">{description}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
