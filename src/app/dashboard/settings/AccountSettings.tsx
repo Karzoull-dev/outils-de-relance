@@ -188,11 +188,33 @@ export function AccountSettings({ locale }: { locale: Locale }) {
     });
   }
 
-  /* ── Delete account ── */
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  /* ── Delete account — multi-step (mot de passe puis confirmation "DELETE") ── */
+  const [deleteStep, setDeleteStep] = useState<Step>("idle");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deletePasswordError, setDeletePasswordError] = useState<string | null>(null);
+  const [deletePasswordChecking, setDeletePasswordChecking] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [deleteStatus, setDeleteStatus] = useState<Status>(null);
   const [deletePending, startDeleteTransition] = useTransition();
+
+  function handleDeleteVerifyPassword() {
+    if (!deletePassword) return;
+    setDeletePasswordError(null);
+    verifyPassword(
+      deletePassword,
+      () => { setDeleteStep("edit"); setDeletePassword(""); },
+      (msg) => setDeletePasswordError(msg),
+      setDeletePasswordChecking,
+    );
+  }
+
+  function resetDeleteFlow() {
+    setDeleteStep("idle");
+    setDeletePassword("");
+    setDeletePasswordError(null);
+    setDeleteInput("");
+    setDeleteStatus(null);
+  }
 
   function handleDelete() {
     if (deleteInput !== "DELETE") return;
@@ -424,16 +446,52 @@ export function AccountSettings({ locale }: { locale: Locale }) {
           <p className="text-sm font-medium">{a.deleteTitle}</p>
           <p className="mt-1 text-xs text-muted">{a.deleteDescription}</p>
 
-          {!showDeleteConfirm ? (
+          {deleteStep === "idle" && (
             <button
               type="button"
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={() => setDeleteStep("verify-password")}
               className="mt-4 inline-flex items-center gap-2 rounded-lg border border-danger px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger hover:text-white"
             >
               <Trash2 className="h-4 w-4" />
               {a.deleteButton}
             </button>
-          ) : (
+          )}
+
+          {deleteStep === "verify-password" && (
+            <div className="mt-4 flex flex-col gap-2 rounded-xl border border-danger/30 bg-canvas p-3">
+              <Field label={a.emailPasswordLabel} id="delete-verify-password">
+                <input
+                  id="delete-verify-password"
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder={a.emailPasswordPlaceholder}
+                  autoComplete="current-password"
+                  autoFocus
+                  className={inputClass}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleDeleteVerifyPassword(); } }}
+                />
+              </Field>
+              {deletePasswordError && (
+                <StatusBadge status={{ ok: false, msg: deletePasswordError }} />
+              )}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDeleteVerifyPassword}
+                  disabled={deletePasswordChecking || !deletePassword}
+                  className="inline-flex items-center justify-center rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+                >
+                  {deletePasswordChecking ? a.emailPasswordChecking : a.emailPasswordConfirm}
+                </button>
+                <button type="button" onClick={resetDeleteFlow} className={btnGhost}>
+                  {a.deleteCancelButton}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {deleteStep === "edit" && (
             <div className="mt-4 flex flex-col gap-3">
               <label
                 htmlFor="delete-confirm"
@@ -447,6 +505,7 @@ export function AccountSettings({ locale }: { locale: Locale }) {
                 value={deleteInput}
                 onChange={(e) => setDeleteInput(e.target.value)}
                 placeholder={a.deleteConfirmPlaceholder}
+                autoFocus
                 className={`${inputClass} border-danger/40 font-mono`}
               />
               <div className="flex items-center gap-2">
@@ -458,11 +517,7 @@ export function AccountSettings({ locale }: { locale: Locale }) {
                 >
                   {a.deleteConfirmButton}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => { setShowDeleteConfirm(false); setDeleteInput(""); setDeleteStatus(null); }}
-                  className={btnGhost}
-                >
+                <button type="button" onClick={resetDeleteFlow} className={btnGhost}>
                   {a.deleteCancelButton}
                 </button>
                 <StatusBadge status={deleteStatus} />
