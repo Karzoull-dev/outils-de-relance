@@ -58,27 +58,16 @@ export function HowItWorks() {
     const tween = gsap.fromTo(
       lineRef.current,
       { scaleY: 0 },
-      isMobile
-        ? {
-            scaleY: 1,
-            duration: 0.6,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: container,
-              start: "top 70%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        : {
-            scaleY: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: container,
-              start: "top 70%",
-              end: "bottom 70%",
-              scrub: true,
-            },
-          },
+      {
+        scaleY: 1,
+        duration: isMobile ? 0.5 : 0.8,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: container,
+          start: "top 70%",
+          toggleActions: "play none none reverse",
+        },
+      },
     );
 
     return () => {
