@@ -40,7 +40,7 @@ export function Faq() {
         className="mx-auto max-w-2xl text-center"
         initial={{ opacity: 0, y: 28 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: false, amount: 0.3 }}
         transition={{ duration: 0.6 }}
       >
         <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">FAQ</p>
@@ -56,7 +56,7 @@ export function Faq() {
         className="mx-auto mt-12 max-w-2xl divide-y divide-gray-200 border-y border-gray-200"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: false, amount: 0.3 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         {QUESTIONS.map(({ q, a }, i) => {

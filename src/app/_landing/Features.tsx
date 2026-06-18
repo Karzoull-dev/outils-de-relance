@@ -65,7 +65,7 @@ export function Features() {
         className="mx-auto max-w-2xl text-center"
         initial={{ opacity: 0, y: 28 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: false, amount: 0.3 }}
         transition={{ duration: 0.6 }}
       >
         <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">
@@ -85,7 +85,7 @@ export function Features() {
         variants={container}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true }}
+        viewport={{ once: false, amount: 0.3 }}
       >
         {FEATURES.map(({ icon: Icon, iconBg, iconColor, title, description }) => (
           <motion.div

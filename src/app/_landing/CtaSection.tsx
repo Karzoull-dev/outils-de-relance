@@ -10,7 +10,7 @@ export function CtaSection() {
         className="mx-auto flex max-w-2xl flex-col items-center text-center"
         initial={{ opacity: 0, y: 28 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: false, amount: 0.3 }}
         transition={{ duration: 0.6 }}
       >
         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
