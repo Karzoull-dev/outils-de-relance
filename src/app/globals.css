@@ -103,6 +103,19 @@
   }
 }
 
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(79, 70, 229, 0);
+  }
+}
+
+.btn-glow-pulse {
+  animation: glow-pulse 2.4s ease-out infinite;
+}
+
 body {
   background: var(--canvas);
   color: var(--ink);
