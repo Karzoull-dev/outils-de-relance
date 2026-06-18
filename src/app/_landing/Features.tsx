@@ -97,15 +97,15 @@ export function Features() {
   }, []);
 
   return (
-    <section id="features" className="scroll-mt-20 bg-white px-5 py-20 sm:px-8 sm:py-28">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">
+    <section id="features" className="scroll-mt-20 bg-white px-5 py-24 sm:px-8 sm:py-36">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="text-base font-semibold tracking-wide text-indigo-600 uppercase">
           Fonctionnalités
         </p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <h2 className="mt-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           Tout ce qu&apos;il vous faut, rien de superflu
         </h2>
-        <p className="mt-4 text-base text-gray-500">
+        <p className="mt-5 text-lg text-gray-500">
           Pensé pour les freelances et indépendants qui veulent être payés, pas gérer un
           logiciel.
         </p>
@@ -113,19 +113,19 @@ export function Features() {
 
       <div
         ref={gridRef}
-        className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        className="mx-auto mt-16 grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-3"
       >
         {FEATURES.map(({ icon: Icon, iconBg, iconColor, title, description }) => (
           <div
             key={title}
             data-feature-card
-            className="rounded-2xl border border-gray-200 bg-white p-6 transition-colors hover:border-indigo-300"
+            className="rounded-2xl border border-gray-200 bg-white p-8 transition-colors hover:border-indigo-300"
           >
-            <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
-              <Icon className="h-5 w-5" />
+            <span className={`flex h-13 w-13 items-center justify-center rounded-lg ${iconBg} ${iconColor}`}>
+              <Icon className="h-6 w-6" />
             </span>
-            <h3 className="mt-4 text-base font-semibold text-gray-900">{title}</h3>
-            <p className="mt-1.5 text-sm text-gray-500">{description}</p>
+            <h3 className="mt-5 text-lg font-semibold text-gray-900">{title}</h3>
+            <p className="mt-2 text-base text-gray-500">{description}</p>
           </div>
         ))}
       </div>

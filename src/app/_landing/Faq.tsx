@@ -35,18 +35,18 @@ export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="scroll-mt-20 bg-white px-5 py-20 sm:px-8 sm:py-28">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">FAQ</p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+    <section id="faq" className="scroll-mt-20 bg-white px-5 py-24 sm:px-8 sm:py-36">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="text-base font-semibold tracking-wide text-indigo-600 uppercase">FAQ</p>
+        <h2 className="mt-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           Questions fréquentes
         </h2>
-        <p className="mt-4 text-base text-gray-500">
+        <p className="mt-5 text-lg text-gray-500">
           Tout ce que vous devez savoir avant de commencer.
         </p>
       </div>
 
-      <div className="mx-auto mt-12 max-w-2xl divide-y divide-gray-200 border-y border-gray-200">
+      <div className="mx-auto mt-14 max-w-3xl divide-y divide-gray-200 border-y border-gray-200">
         {QUESTIONS.map(({ q, a }, i) => {
           const isOpen = openIndex === i;
           return (
@@ -54,15 +54,15 @@ export function Faq() {
               <button
                 type="button"
                 onClick={() => setOpenIndex(isOpen ? null : i)}
-                className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                className="flex w-full items-center justify-between gap-4 py-6 text-left"
               >
-                <span className="text-sm font-medium text-gray-900">{q}</span>
+                <span className="text-base font-medium text-gray-900">{q}</span>
                 <motion.span
                   animate={{ rotate: isOpen ? 45 : 0 }}
                   transition={{ duration: 0.2 }}
                   className="shrink-0 text-gray-400"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                 </motion.span>
               </button>
               <motion.div
@@ -71,7 +71,7 @@ export function Faq() {
                 transition={{ duration: 0.25, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <p className="pb-5 text-sm leading-relaxed text-gray-500">{a}</p>
+                <p className="pb-6 text-base leading-relaxed text-gray-500">{a}</p>
               </motion.div>
             </div>
           );

@@ -78,24 +78,24 @@ export function HowItWorks() {
   }, []);
 
   return (
-    <section className="bg-gray-50 px-5 py-20 sm:px-8 sm:py-28">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase">
+    <section className="bg-gray-50 px-5 py-24 sm:px-8 sm:py-36">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="text-base font-semibold tracking-wide text-indigo-600 uppercase">
           Comment ça marche
         </p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <h2 className="mt-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           En 3 étapes, c&apos;est réglé
         </h2>
       </div>
 
-      <div ref={containerRef} className="relative mx-auto mt-16 max-w-xs">
-        <div ref={trackRef} className="absolute left-1/2 w-0.5 -translate-x-1/2 bg-gray-200" />
+      <div ref={containerRef} className="relative mx-auto mt-20 max-w-sm">
+        <div ref={trackRef} className="absolute left-1/2 w-1 -translate-x-1/2 bg-gray-200" />
         <div
           ref={lineRef}
-          className="absolute left-1/2 w-0.5 origin-top -translate-x-1/2 scale-y-0 bg-indigo-600"
+          className="absolute left-1/2 w-1 origin-top -translate-x-1/2 scale-y-0 bg-indigo-600"
         />
 
-        <div className="relative flex flex-col gap-14">
+        <div className="relative flex flex-col gap-16">
           {STEPS.map(({ title, description, done }, i) => (
             <div
               key={title}
@@ -105,14 +105,14 @@ export function HowItWorks() {
                 ref={(el) => {
                   circleRefs.current[i] = el;
                 }}
-                className={`flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold text-white ring-8 ring-gray-50 ${
+                className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-semibold text-white ring-8 ring-gray-50 ${
                   done ? "bg-emerald-500" : "bg-indigo-600"
                 }`}
               >
-                {done ? <Check className="h-5 w-5" /> : i + 1}
+                {done ? <Check className="h-7 w-7" /> : i + 1}
               </span>
-              <h3 className="mt-5 text-base font-semibold text-gray-900">{title}</h3>
-              <p className="mt-1.5 text-sm text-gray-500">{description}</p>
+              <h3 className="mt-6 text-lg font-semibold text-gray-900">{title}</h3>
+              <p className="mt-2 text-base text-gray-500">{description}</p>
             </div>
           ))}
         </div>

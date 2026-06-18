@@ -23,33 +23,33 @@ export function DemoModal({
           onClick={onClose}
         >
           <motion.div
-            className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl"
+            className="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-2xl"
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.92 }}
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Démo Relancio</h3>
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Démo Relancio</h3>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Fermer"
                 className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
               >
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               </button>
             </div>
 
             <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-gray-100">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
-                <Play className="h-6 w-6 text-indigo-600" fill="currentColor" />
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
+                <Play className="h-7 w-7 text-indigo-600" fill="currentColor" />
               </span>
               <video className="hidden" />
             </div>
 
-            <p className="mt-4 text-center text-sm text-gray-500">
+            <p className="mt-5 text-center text-base text-gray-500">
               Vous pouvez aussi{" "}
               <Link href="/signup" className="font-medium text-indigo-600 hover:underline">
                 commencer gratuitement

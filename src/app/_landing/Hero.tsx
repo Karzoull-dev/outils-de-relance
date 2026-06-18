@@ -66,19 +66,19 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-white px-5 pt-20 pb-16 sm:px-8 sm:pt-28 sm:pb-24">
-      <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+    <section className="relative overflow-hidden bg-white px-5 pt-24 pb-20 sm:px-8 sm:pt-36 sm:pb-32">
+      <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
         <span
           ref={badgeRef}
-          className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3.5 py-1.5 text-xs font-medium text-indigo-700 opacity-0"
+          className="mb-7 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 opacity-0"
         >
-          <Sparkles className="h-3.5 w-3.5" />
+          <Sparkles className="h-4 w-4" />
           100% gratuit pour démarrer
         </span>
 
         <h1
           ref={titleRef}
-          className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl"
+          className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl"
         >
           <span className="block">
             <Words text={TITLE_LINE_1} dataAttr="l1" />
@@ -94,30 +94,30 @@ export function Hero() {
           animate={restReady ? "show" : "hidden"}
           className="contents"
         >
-          <motion.p variants={restItem} className="mt-5 max-w-xl text-base text-gray-500 sm:text-lg">
+          <motion.p variants={restItem} className="mt-7 max-w-2xl text-lg text-gray-500 sm:text-xl">
             Créez vos factures, choisissez votre moyen de paiement, et laissez Relancio relancer
             vos clients automatiquement jusqu&apos;au règlement.
           </motion.p>
 
-          <motion.div variants={restItem} className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <motion.div variants={restItem} className="mt-11 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/signup"
-              className="btn-glow-pulse inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+              className="btn-glow-pulse inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-indigo-700"
             >
               Commencer gratuitement
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-5 w-5" />
             </Link>
             <button
               type="button"
               onClick={() => setDemoOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-6 py-3.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-8 py-4 text-base font-semibold text-gray-700 transition-colors hover:bg-gray-50"
             >
-              <Play className="h-4 w-4" />
+              <Play className="h-5 w-5" />
               Voir la démo
             </button>
           </motion.div>
 
-          <motion.p variants={restItem} className="mt-5 text-xs text-gray-400">
+          <motion.p variants={restItem} className="mt-6 text-sm text-gray-400">
             Sans carte bancaire · Aucune installation
           </motion.p>
         </motion.div>
