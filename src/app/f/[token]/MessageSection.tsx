@@ -8,14 +8,16 @@ export function MessageSection({
   locale,
   clientSentMessage,
   sent,
+  rateLimited,
 }: {
   token: string;
   locale: string;
   clientSentMessage: boolean;
   sent: boolean;
+  rateLimited: boolean;
 }) {
   /* Auto-ouvre si le client a déjà envoyé un message ou vient d'en envoyer un */
-  const [isOpen, setIsOpen] = useState(clientSentMessage || sent);
+  const [isOpen, setIsOpen] = useState(clientSentMessage || sent || rateLimited);
 
   if (!isOpen) {
     return (
@@ -81,9 +83,26 @@ export function MessageSection({
               : "✓ Your message was sent successfully."}
           </p>
         </div>
+      ) : rateLimited ? (
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "12px 16px" }}>
+          <p style={{ fontSize: 14, color: "#b91c1c", fontWeight: 500, margin: 0 }}>
+            {locale === "fr"
+              ? "Trop de messages envoyés récemment. Réessayez dans quelques minutes."
+              : "Too many messages sent recently. Please try again in a few minutes."}
+          </p>
+        </div>
       ) : (
         <form action={sendMessage} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input type="hidden" name="token" value={token} />
+          {/* Honeypot anti-spam : invisible pour un humain, souvent rempli par les bots */}
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            style={{ position: "absolute", left: -9999, width: 1, height: 1, opacity: 0 }}
+          />
           <textarea
             name="message"
             required

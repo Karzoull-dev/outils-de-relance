@@ -41,3 +41,15 @@ export function formatCurrency(
     currency,
   }).format(amount);
 }
+
+/**
+ * Numéro de facture légal : séquentiel et sans trou par utilisateur
+ * (colonne `number`, attribuée par un trigger Postgres à l'insertion).
+ */
+export function formatInvoiceNumber(invoice: {
+  number: number;
+  created_at: string;
+}): string {
+  const year = new Date(invoice.created_at).getFullYear();
+  return `FA-${year}-${String(invoice.number).padStart(4, "0")}`;
+}

@@ -1,23 +1,18 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatCurrency, getInvoiceStatus } from "@/lib/invoices";
+import { formatCurrency, formatInvoiceNumber, getInvoiceStatus } from "@/lib/invoices";
 import { getLocale } from "@/lib/i18n/getLocale";
 import { MessageSection } from "./MessageSection";
-
-function invoiceNum(id: string, createdAt: string): string {
-  const d = new Date(createdAt);
-  return `FA-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}-${id.slice(0, 4).toUpperCase()}`;
-}
 
 export default async function PublicInvoicePage({
   params,
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ sent?: string }>;
+  searchParams: Promise<{ sent?: string; error?: string }>;
 }) {
   const { token } = await params;
-  const { sent } = await searchParams;
+  const { sent, error } = await searchParams;
   const locale = await getLocale();
 
   const supabase = createAdminClient();
@@ -54,7 +49,7 @@ export default async function PublicInvoicePage({
     : null;
 
   const ownerName = profile?.display_name ?? (locale === "fr" ? "Votre prestataire" : "Your service provider");
-  const number = invoiceNum(invoice.id, invoice.created_at);
+  const number = formatInvoiceNumber(invoice);
 
   const badge = isPaid
     ? { label: locale === "fr" ? "Réglée ✓" : "Paid ✓", bg: "#dcfce7", color: "#15803d" }
@@ -179,6 +174,7 @@ export default async function PublicInvoicePage({
             locale={locale}
             clientSentMessage={clientSentMessage}
             sent={sent === "1"}
+            rateLimited={error === "rate_limit"}
           />
 
         </div>

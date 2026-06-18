@@ -1,18 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency } from "@/lib/invoices";
+import { formatCurrency, formatInvoiceNumber } from "@/lib/invoices";
 import { getPaymentMethods, type PaymentMethod } from "@/lib/payment-methods";
 import { getLocale } from "@/lib/i18n/getLocale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getUserProfile } from "@/app/dashboard/settings/profileActions";
 import { PrintTrigger } from "./PrintTrigger";
-
-function invoiceNumber(id: string, createdAt: string): string {
-  const d = new Date(createdAt);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  return `FA-${year}${month}-${id.slice(0, 4).toUpperCase()}`;
-}
 
 /* Script synchrone injecté avant tout rendu pour lire localStorage et
    appliquer le thème sombre dès le parsing HTML — zéro flash. */
@@ -42,7 +35,7 @@ export default async function PrintPage({
   const paymentMethods = getPaymentMethods(locale);
   const hasProfile = !!(profile?.display_name || profile?.email);
 
-  const number = invoiceNumber(invoice.id, invoice.created_at);
+  const number = formatInvoiceNumber(invoice);
   const isPaid = !!invoice.paid_at;
   const paymentLabel = invoice.payment_method
     ? paymentMethods[invoice.payment_method as PaymentMethod]?.label

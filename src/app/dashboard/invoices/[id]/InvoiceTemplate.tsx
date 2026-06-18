@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Printer } from "lucide-react";
-import { formatCurrency } from "@/lib/invoices";
+import { formatCurrency, formatInvoiceNumber } from "@/lib/invoices";
 import { getPaymentMethods, type PaymentMethod } from "@/lib/payment-methods";
 import type { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -8,6 +8,7 @@ import type { UserProfile } from "@/app/dashboard/settings/profileActions";
 
 type Invoice = {
   id: string;
+  number: number;
   client_name: string;
   client_email: string;
   client_address: string | null;
@@ -24,13 +25,6 @@ type Invoice = {
   paid_at: string | null;
 };
 
-function invoiceNumber(invoice: Invoice): string {
-  const d = new Date(invoice.created_at);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  return `FA-${year}${month}-${invoice.id.slice(0, 4).toUpperCase()}`;
-}
-
 const secLabel = "mb-2 text-[11px] uppercase tracking-wider text-[#6b7280]";
 
 export function InvoiceTemplate({
@@ -45,7 +39,7 @@ export function InvoiceTemplate({
   const t = getDictionary(locale);
   const paymentMethods = getPaymentMethods(locale);
   const isPaid = !!invoice.paid_at;
-  const number = invoiceNumber(invoice);
+  const number = formatInvoiceNumber(invoice);
   const hasProfile = !!(profile?.display_name || profile?.email);
 
   const issueDate = new Date(invoice.created_at).toLocaleDateString(

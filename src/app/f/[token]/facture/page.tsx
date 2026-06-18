@@ -1,15 +1,10 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatCurrency } from "@/lib/invoices";
+import { formatCurrency, formatInvoiceNumber } from "@/lib/invoices";
 import { getPaymentMethods, type PaymentMethod } from "@/lib/payment-methods";
 import { getLocale } from "@/lib/i18n/getLocale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { PublicPrintBar } from "./PublicPrintBar";
-
-function invoiceNum(id: string, createdAt: string): string {
-  const d = new Date(createdAt);
-  return `FA-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}-${id.slice(0, 4).toUpperCase()}`;
-}
 
 export default async function PublicFacturePage({
   params,
@@ -39,7 +34,7 @@ export default async function PublicFacturePage({
 
   const isPaid = !!invoice.paid_at;
   const hasProfile = !!(profile?.display_name || profile?.email);
-  const number = invoiceNum(invoice.id, invoice.created_at);
+  const number = formatInvoiceNumber(invoice);
   const paymentLabel = invoice.payment_method
     ? paymentMethods[invoice.payment_method as PaymentMethod]?.label
     : null;

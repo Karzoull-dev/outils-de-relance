@@ -1,4 +1,4 @@
-import { formatCurrency } from "./invoices";
+import { formatCurrency, formatInvoiceNumber } from "./invoices";
 import type { ReminderType } from "./reminders";
 import type { PaymentMethod } from "./payment-methods";
 
@@ -65,11 +65,6 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function invoiceNum(id: string, createdAt: string): string {
-  const d = new Date(createdAt);
-  return `FA-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}-${id.slice(0, 4).toUpperCase()}`;
-}
-
 function formatDateFR(isoDate: string): string {
   return new Date(`${isoDate}T00:00:00`).toLocaleDateString("fr-FR", {
     day: "2-digit",
@@ -86,6 +81,7 @@ export function getReminderEmail({
 }: {
   invoice: {
     id: string;
+    number: number;
     created_at: string;
     client_name: string;
     amount: number;
@@ -100,7 +96,7 @@ export function getReminderEmail({
 }) {
   const { subject, isLate, dueLine } = REMINDER_CONTENT[reminderType];
 
-  const number = invoiceNum(invoice.id, invoice.created_at);
+  const number = formatInvoiceNumber(invoice);
   const amountFormatted = formatCurrency(invoice.amount, invoice.currency, "fr");
   const dueFormatted = formatDateFR(invoice.due_date);
   const safeOwnerName = escapeHtml(ownerName);
@@ -217,6 +213,55 @@ export function getReminderEmail({
     "",
     `Cordialement,`,
     ownerName,
+  ].join("\n");
+
+  return { subject, html, text };
+}
+
+export function getNewClientMessageEmail({
+  invoice,
+  message,
+  dashboardUrl,
+}: {
+  invoice: { id: string; number: number; created_at: string; client_name: string };
+  message: string;
+  dashboardUrl: string;
+}) {
+  const number = formatInvoiceNumber(invoice);
+  const safeClientName = escapeHtml(invoice.client_name);
+  const safeMessage = escapeHtml(message);
+  const fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+
+  const subject = `💬 Nouveau message de ${invoice.client_name} — facture ${number}`;
+
+  const html = `
+<div style="background:#f4f4f5; padding:2rem 1rem; font-family:${fontFamily};">
+  <div style="max-width:560px; margin:0 auto; background:#ffffff; border-radius:12px; overflow:hidden; border:0.5px solid #e4e4e7;">
+    <div style="background:#4f46e5; padding:1.5rem 2rem;">
+      <p style="font-size:13px; color:rgba(255,255,255,0.7); margin:0 0 4px;">Nouveau message · ${number}</p>
+      <p style="font-size:19px; font-weight:500; color:#fff; margin:0;">${safeClientName} vous a écrit</p>
+    </div>
+    <div style="padding:2rem;">
+      <div style="background:#f9fafb; border:0.5px solid #e5e7eb; border-radius:10px; padding:1.25rem; margin-bottom:1.75rem;">
+        <p style="font-size:14px; color:#111827; margin:0; line-height:1.6; white-space:pre-wrap;">${safeMessage}</p>
+      </div>
+      <a href="${dashboardUrl}" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#4f46e5; color:#fff; padding:13px 16px; border-radius:8px; text-decoration:none; font-size:14px; font-weight:500;">
+        Répondre dans le dashboard
+      </a>
+    </div>
+    <div style="background:#f9fafb; border-top:0.5px solid #e5e7eb; padding:1rem 2rem; text-align:center;">
+      <p style="font-size:11px; color:#9ca3af; margin:0;">Cet email a été envoyé automatiquement par <strong style="color:#6b7280;">Outils de relance</strong></p>
+    </div>
+  </div>
+</div>
+  `;
+
+  const text = [
+    `Nouveau message de ${invoice.client_name} sur la facture ${number} :`,
+    "",
+    message,
+    "",
+    `Répondre : ${dashboardUrl}`,
   ].join("\n");
 
   return { subject, html, text };
