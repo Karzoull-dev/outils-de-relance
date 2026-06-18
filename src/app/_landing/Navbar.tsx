@@ -30,16 +30,16 @@ export function Navbar() {
           <span className="text-[15px] font-semibold text-gray-900">Relancio</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 text-sm font-medium text-gray-600 md:flex">
-          <a href="#features" className="transition-colors hover:text-gray-900">
-            Fonctionnalités
-          </a>
-          <a href="#faq" className="transition-colors hover:text-gray-900">
-            FAQ
-          </a>
-        </nav>
+        <div className="flex items-center gap-6 sm:gap-8">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-gray-600 md:flex">
+            <a href="#features" className="transition-colors hover:text-gray-900">
+              Fonctionnalités
+            </a>
+            <a href="#faq" className="transition-colors hover:text-gray-900">
+              FAQ
+            </a>
+          </nav>
 
-        <div className="flex items-center gap-3 sm:gap-5">
           <Link
             href="/login"
             className="hidden text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 sm:inline"
