@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SmoothScroll } from "./_landing/SmoothScroll";
 import { Navbar } from "./_landing/Navbar";
 import { Hero } from "./_landing/Hero";
-import { TrustBar } from "./_landing/TrustBar";
+import { StatsBar } from "./_landing/StatsBar";
 import { Features } from "./_landing/Features";
 import { HowItWorks } from "./_landing/HowItWorks";
 import { Faq } from "./_landing/Faq";
@@ -22,7 +22,7 @@ export default async function Home() {
         <Navbar />
         <main>
           <Hero />
-          <TrustBar />
+          <StatsBar />
           <Features />
           <HowItWorks />
           <Faq />

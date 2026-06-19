@@ -24,56 +24,25 @@ const STEPS = [
 ];
 
 export function HowItWorks() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const circleRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const container = containerRef.current;
-    const first = circleRefs.current[0];
-    const last = circleRefs.current[circleRefs.current.length - 1];
-    if (!container || !first || !last) return;
+    const circles = gridRef.current?.querySelectorAll<HTMLElement>("[data-step-circle]");
+    if (!circles) return;
 
-    function positionLine() {
-      const containerRect = container!.getBoundingClientRect();
-      const firstRect = first!.getBoundingClientRect();
-      const lastRect = last!.getBoundingClientRect();
-      const top = firstRect.top - containerRect.top + firstRect.height / 2;
-      const bottom = lastRect.top - containerRect.top + lastRect.height / 2;
-      const height = bottom - top;
-      [trackRef.current, lineRef.current].forEach((el) => {
-        if (el) {
-          el.style.top = `${top}px`;
-          el.style.height = `${height}px`;
-        }
-      });
-    }
-
-    positionLine();
-    window.addEventListener("resize", positionLine);
-
-    const isMobile = window.innerWidth < 768;
-
-    const tween = gsap.fromTo(
-      lineRef.current,
-      { scaleY: 0 },
-      {
-        scaleY: 1,
-        duration: isMobile ? 0.5 : 0.8,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: container,
-          start: "top 70%",
-          toggleActions: "play none none reverse",
-        },
-      },
-    );
+    const hoverHandlers = Array.from(circles).map((circle) => {
+      const onEnter = () => gsap.to(circle, { scale: 1.15, duration: 0.2, ease: "power2.out" });
+      const onLeave = () => gsap.to(circle, { scale: 1, duration: 0.2, ease: "power2.out" });
+      circle.addEventListener("mouseenter", onEnter);
+      circle.addEventListener("mouseleave", onLeave);
+      return { circle, onEnter, onLeave };
+    });
 
     return () => {
-      window.removeEventListener("resize", positionLine);
-      tween.scrollTrigger?.kill();
-      tween.kill();
+      hoverHandlers.forEach(({ circle, onEnter, onLeave }) => {
+        circle.removeEventListener("mouseenter", onEnter);
+        circle.removeEventListener("mouseleave", onLeave);
+      });
     };
   }, []);
 
@@ -88,34 +57,21 @@ export function HowItWorks() {
         </h2>
       </div>
 
-      <div ref={containerRef} className="relative mx-auto mt-20 max-w-sm">
-        <div ref={trackRef} className="absolute left-1/2 w-1 -translate-x-1/2 bg-gray-200" />
-        <div
-          ref={lineRef}
-          className="absolute left-1/2 w-1 origin-top -translate-x-1/2 scale-y-0 bg-indigo-600"
-        />
-
-        <div className="relative flex flex-col gap-16">
-          {STEPS.map(({ title, description, done }, i) => (
-            <div
-              key={title}
-              className="relative z-10 flex flex-col items-center bg-gray-50 text-center"
+      <div ref={gridRef} className="mx-auto mt-16 grid max-w-4xl gap-12 sm:grid-cols-3">
+        {STEPS.map(({ title, description, done }, i) => (
+          <div key={title} className="flex flex-col items-center text-center">
+            <span
+              data-step-circle
+              className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-semibold text-white ${
+                done ? "bg-emerald-500" : "bg-indigo-600"
+              }`}
             >
-              <span
-                ref={(el) => {
-                  circleRefs.current[i] = el;
-                }}
-                className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-semibold text-white ring-8 ring-gray-50 ${
-                  done ? "bg-emerald-500" : "bg-indigo-600"
-                }`}
-              >
-                {done ? <Check className="h-7 w-7" /> : i + 1}
-              </span>
-              <h3 className="mt-6 text-lg font-semibold text-gray-900">{title}</h3>
-              <p className="mt-2 text-base text-gray-500">{description}</p>
-            </div>
-          ))}
-        </div>
+              {done ? <Check className="h-7 w-7" /> : i + 1}
+            </span>
+            <h3 className="mt-6 text-lg font-semibold text-gray-900">{title}</h3>
+            <p className="mt-2 text-base text-gray-500">{description}</p>
+          </div>
+        ))}
       </div>
     </section>
   );

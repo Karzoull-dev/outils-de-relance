@@ -10,10 +10,6 @@ const QUESTIONS = [
     a: "Oui, Relancio est entièrement gratuit pour démarrer. Aucune carte bancaire requise, aucune limite de durée.",
   },
   {
-    q: "Comment fonctionne la relance automatique ?",
-    a: "Dès qu'une facture est créée, Relancio envoie des emails selon un calendrier : J-3, J0, J+7, J+14, J+30. Les relances s'arrêtent dès que vous marquez la facture comme payée.",
-  },
-  {
     q: "Mon client doit-il créer un compte ?",
     a: "Non. Il reçoit un email avec un lien unique sécurisé. En un clic, il peut voir la facture, la télécharger, et vous envoyer un message.",
   },
@@ -22,12 +18,12 @@ const QUESTIONS = [
     a: "IBAN, PayPal, Lydia, ou n'importe quel autre moyen en texte libre. Votre client voit clairement comment vous régler dans l'email.",
   },
   {
-    q: "Mes données sont-elles sécurisées ?",
-    a: "Chaque facture possède un lien unique et imprévisible. Vos données ne sont jamais partagées. Chaque utilisateur n'accède qu'à ses propres données.",
-  },
-  {
     q: "Les factures sont-elles conformes à la loi française ?",
     a: "Oui. Numéro séquentiel, SIRET, TVA, et mention légale des pénalités de retard (art. L441-10 C. com.) — tout y est.",
+  },
+  {
+    q: "Mes données sont-elles sécurisées ?",
+    a: "Chaque facture possède un lien unique et imprévisible. Vos données ne sont jamais partagées. Chaque utilisateur n'accède qu'à ses propres données.",
   },
 ];
 
